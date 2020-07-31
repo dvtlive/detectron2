@@ -579,21 +579,22 @@ def build_augmentation(cfg, is_train):
     augmentation = [T.ResizeShortestEdge(min_size, max_size, sample_style)]
     if is_train:  
         
-        contrast_min, contrast_max     = cfg.INPUT.CONTRAST.RANGE
-        brightness_min, brightness_max = cfg.INPUT.BRIGHTNESS.RANGE 
-        saturation_min, saturation_max = cfg.INPUT.SATURATION.RANGE 
-        
-        rotation  =cfg.INPUT.ROTATION_ANGLES
-        #extent_min, extent_max         = cfg.INPUT.EXTENT.SHIFT_RANGE
-
-        
-        augmentation.append(T.RandomFlip())
-        augmentation.append(T.RandomBrightness(contrast_min, contrast_max))
-        augmentation.append(T.RandomContrast(brightness_min, brightness_max))
-        augmentation.append(T.RandomSaturation(saturation_min, saturation_max))
-        augmentation.append(T.RandomRotation(rotation,expand=False, sample_style="choice"))
-        
-        #augmentation.append(T.RandomExtent(extent_min, extent_max))
+        if cfg.INPUT.CONTRAST.ENABLED:
+            augmentation.append(T.RandomContrast(cfg.INPUT.CONTRAST.RANGE[0], cfg.INPUT.CONTRAST.RANGE[1]))
+        if cfg.INPUT.BRIGHTNESS.ENABLED:
+            augmentation.append(T.RandomBrightness(cfg.INPUT.BRIGHTNESS.RANGE[0], cfg.INPUT.BRIGHTNESS.RANGE[1]))
+        if cfg.INPUT.SATURATION.ENABLED:
+            augmentation.append(T.RandomSaturation(cfg.INPUT.SATURATION.RANGE[0], cfg.INPUT.SATURATION.RANGE[1]))
+        if cfg.INPUT.CUTOUT.ENABLED:
+            augmentation.append(T.RandomExtent(scale_range=(1, 1), shift_range=cfg.INPUT.EXTENT.SHIFT_RANGE))
+        if cfg.INPUT.EXTENT.ENABLED:
+            augmentation.append(T.RandomExtent(scale_range=(1, 1), shift_range=cfg.INPUT.EXTENT.SHIFT_RANGE))
+        if cfg.INPUT.CROP.ENABLED:
+            augmentation.append(T.RandomCrop(cfg.INPUT.CROP.TYPE, cfg.INPUT.CROP.SIZE))
+        if cfg.INPUT.ROTATE.ENABLED:
+            augmentation.append(T.RandomRotation(cfg.INPUT.ROTATE.ANGLE, expand=False))
+        if cfg.INPUT.SHEAR.ENABLED:
+            augmentation.append(RandomShear(cfg.INPUT.SHEAR.ANGLE_H_RANGE, cfg.INPUT.SHEAR.ANGLE_V_RANGE))
         
         
     return augmentation
