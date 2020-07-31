@@ -595,8 +595,7 @@ def build_augmentation(cfg, is_train):
             augmentation.append(T.RandomCrop(cfg.INPUT.CROP.TYPE, cfg.INPUT.CROP.SIZE))
         if cfg.INPUT.ROTATE.ENABLED:
             augmentation.append(T.RandomRotation(cfg.INPUT.ROTATE.ANGLE, expand=False))
-        if cfg.INPUT.SHEAR.ENABLED:
-            augmentation.append(T.RandomShear(cfg.INPUT.SHEAR.ANGLE_H_RANGE, cfg.INPUT.SHEAR.ANGLE_V_RANGE))
+
 
         
         
