@@ -13,6 +13,8 @@ from fvcore.transforms.transform import (
     TransformList,
 )
 from PIL import Image
+import shapely.geometry as geometry
+from detectron2.data import transforms as T
 
 try:
     import cv2  # noqa
@@ -26,7 +28,139 @@ __all__ = [
     "RotationTransform",
     "ColorTransform",
     "PILColorTransform",
+    "ShearTransform",
+    "CutoutTransform"
 ]
+
+
+class ShearTransform(Transform):
+    def __init__(self, h, w, angle_h, angle_v):
+        super().__init__()
+        self._set_attributes(locals())
+        
+        self.mat = np.array([[1, np.tan(np.deg2rad(angle_h)), 0],
+                             [np.tan(np.deg2rad(angle_v)), 1, 0]])
+        
+    def apply_image(self, img: np.ndarray):
+        assert len(img.shape) == 3, 'Only for 3ch color image'
+        h, w = img.shape[:2]
+        assert (self.h == h and self.w == w), 'Image size mismatch h:w {}:{} -> {}:{}'.format(self.h, self.w, h, w)
+        
+        return cv2.warpAffine(img, self.mat, (w, h))
+
+    def apply_coords(self, coords: np.ndarray):
+        p = np.vstack([coords.T, np.ones((1, len(coords)))])
+        p = np.dot(self.mat, p)
+        
+        return p.T
+
+    def apply_polygons(self, polygons):
+        polygons = [self.apply_coords(p) for p in polygons]
+
+        #Clipping in image range
+        crop_box = geometry.box(0, 0, self.w, self.h).buffer(0)
+        
+        cropped_polygons = []
+        
+        for polygon in polygons:
+            polygon = geometry.Polygon(polygon).buffer(0)
+            assert polygon.is_valid, 'Illegal polygon {}'.format(polygon)
+            
+            cropped = polygon.intersection(crop_box)
+            
+            if cropped.is_empty:
+                continue
+            
+           # Need to be processed because it may be divided into multiple polygons
+            if not isinstance(cropped, geometry.collection.BaseMultipartGeometry):  
+                cropped = [cropped]
+            
+            for poly in cropped:
+                if not isinstance(poly, geometry.Polygon) or not poly.is_valid:  
+                    continue
+                
+                coords = np.asarray(poly.exterior.coords)
+                cropped_polygons.append(coords[:-1]) 
+        
+        assert len(cropped_polygons) > 0, 'As a result of shear deformation, no effective area remained'
+        
+        return cropped_polygons
+
+
+class RandomShear(T.TransformGen):
+    def __init__(self, angle_h_range, angle_v_range):
+        super().__init__()
+        self._init(locals())
+
+    def get_transform(self, img):
+        h, w = img.shape[:2]
+        
+        if self.angle_h_range is None:
+            angle_h = 0
+        else:
+            angle_h = np.random.uniform(self.angle_h_range[0], self.angle_h_range[1])
+            
+        if self.angle_v_range is None:
+            angle_v = 0
+        else:
+            angle_v = np.random.uniform(self.angle_v_range[0], self.angle_v_range[1])
+       
+        return ShearTransform(h, w, angle_h, angle_v)
+
+class CutoutTransform(Transform):
+    def __init__(self, h, w, centers, radii, colors):
+        """
+        centers: 
+        radii: 
+        colors: 
+        """
+        super().__init__()
+        self._set_attributes(locals())
+        
+    def apply_image(self, img: np.ndarray):
+        assert len(img.shape) == 3, 'Only for 3ch color image'
+        h, w = img.shape[:2]
+        assert (self.h == h and self.w == w), 'Image size mismatch h:w {}:{} -> {}:{}'.format(self.h, self.w, h, w)
+        
+        assert len(self.centers) == len(self.radii) == len(self.colors), 'Argument mismatch'
+        for pt, r, c in zip(self.centers, self.radii, self.colors):
+            img = cv2.circle(img, pt, r, color=c, thickness=-1)
+        
+        return img
+        
+    def apply_coords(self, coords: np.ndarray):
+        return coords
+    
+
+class RandomCutout(T.TransformGen):
+    def __init__(self, num_hole_range, radius_range, color_ranges):
+        """
+        num_max_hole: (min, max)
+        radius_range: (min, max) 
+        color_ranges:  [(min, max), (min, max), (min, max)]
+        """
+        super().__init__()
+        self._init(locals())
+
+    def get_transform(self, img):
+        h, w = img.shape[:2]
+        
+        short_len = h if h < w else w
+        
+        num_hole = np.random.randint(self.num_hole_range[0], self.num_hole_range[1])
+        centers, radii, colors = [], [], []
+        
+        for _ in range(num_hole):
+            centers += [(int(np.random.uniform(0, h)), int(np.random.uniform(0, w)))]
+            radii += [int(short_len * np.random.uniform(self.radius_range[0], self.radius_range[1]))]
+
+            g = np.random.uniform(self.color_ranges[0][0], self.color_ranges[0][1])
+            b = np.random.uniform(self.color_ranges[1][0], self.color_ranges[1][1])
+            r = np.random.uniform(self.color_ranges[2][0], self.color_ranges[2][1])
+            colors += [(int(g), int(b), int(r))]
+       
+        return CutoutTransform(h, w, centers, radii, colors)
+
 
 
 class ExtentTransform(Transform):
