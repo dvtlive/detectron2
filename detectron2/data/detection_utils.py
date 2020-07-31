@@ -583,15 +583,17 @@ def build_augmentation(cfg, is_train):
         brightness_min, brightness_max = cfg.INPUT.BRIGHTNESS.RANGE 
         saturation_min, saturation_max = cfg.INPUT.SATURATION.RANGE 
         
-        extent_min, extent_max         = cfg.INPUT.EXTENT.SHIFT_RANGE
+        rotation  =cfg.INPUT.ROTATION_ANGLES
+        #extent_min, extent_max         = cfg.INPUT.EXTENT.SHIFT_RANGE
 
         
         augmentation.append(T.RandomFlip())
         augmentation.append(T.RandomBrightness(contrast_min, contrast_max))
         augmentation.append(T.RandomContrast(brightness_min, brightness_max))
         augmentation.append(T.RandomSaturation(saturation_min, saturation_max))
+        augmentation.append(T.RandomRotation(rotation,expand=False, sample_style="choice"))
         
-        augmentation.append(T.RandomExtent(extent_min, extent_max))
+        #augmentation.append(T.RandomExtent(extent_min, extent_max))
         
         
     return augmentation
