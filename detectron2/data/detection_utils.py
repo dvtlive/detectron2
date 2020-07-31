@@ -581,11 +581,19 @@ def build_augmentation(cfg, is_train):
         
         contrast_min, contrast_max     = cfg.INPUT.CONTRAST.RANGE
         brightness_min, brightness_max = cfg.INPUT.BRIGHTNESS.RANGE 
+        saturation_min, saturation_max = cfg.INPUT.SATURATION.RANGE 
+        
+        extent_min, extent_max         = cfg.INPUT.EXTENT.SHIFT_RANGE
 
         
         augmentation.append(T.RandomFlip())
         augmentation.append(T.RandomBrightness(contrast_min, contrast_max))
-        augmentation.append(T.RandomContrast(brightness_min, brightness_max))    
+        augmentation.append(T.RandomContrast(brightness_min, brightness_max))
+        augmentation.append(T.RandomSaturation(saturation_min, saturation_max))
+        
+        augmentation.append(T.RandomExtent(extent_min, extent_max))
+        
+        
     return augmentation
 
 
