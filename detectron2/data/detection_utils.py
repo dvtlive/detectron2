@@ -592,7 +592,10 @@ def build_augmentation(cfg, is_train):
         if cfg.INPUT.CROP.ENABLED:
             augmentation.append(T.RandomCrop(cfg.INPUT.CROP.TYPE, cfg.INPUT.CROP.SIZE))
         if cfg.INPUT.ROTATE.ENABLED:
-            augmentation.append(T.RandomRotation(cfg.INPUT.ROTATE.ANGLE, expand=False))
+            augmentation.append(T.RandomRotation(cfg.INPUT.ROTATE.ANGLE, expand=False))    
+        if cfg.INPUT.LIGHTING.ENABLED:
+            augmentation.append(T.RandomLighting(cfg.INPUT.LIGHTING.SCALE))
+            
 
 
         
