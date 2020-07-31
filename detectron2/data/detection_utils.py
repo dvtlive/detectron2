@@ -588,7 +588,7 @@ def build_augmentation(cfg, is_train):
         if cfg.INPUT.SATURATION.ENABLED:
             augmentation.append(T.RandomSaturation(cfg.INPUT.SATURATION.RANGE[0], cfg.INPUT.SATURATION.RANGE[1]))
         if cfg.INPUT.CUTOUT.ENABLED:
-            augmentation.append(T.RandomExtent(scale_range=(1, 1), shift_range=cfg.INPUT.EXTENT.SHIFT_RANGE))
+            augmentation.append(T.RandomCutout(cfg.INPUT.CUTOUT.NUM_HOLE_RANGE, cfg.INPUT.CUTOUT.RADIUS_RANGE, cfg.INPUT.CUTOUT.COLOR_RANGE))
         if cfg.INPUT.EXTENT.ENABLED:
             augmentation.append(T.RandomExtent(scale_range=(1, 1), shift_range=cfg.INPUT.EXTENT.SHIFT_RANGE))
         if cfg.INPUT.CROP.ENABLED:
@@ -596,7 +596,7 @@ def build_augmentation(cfg, is_train):
         if cfg.INPUT.ROTATE.ENABLED:
             augmentation.append(T.RandomRotation(cfg.INPUT.ROTATE.ANGLE, expand=False))
         if cfg.INPUT.SHEAR.ENABLED:
-            augmentation.append(RandomShear(cfg.INPUT.SHEAR.ANGLE_H_RANGE, cfg.INPUT.SHEAR.ANGLE_V_RANGE))
+            augmentation.append(T.RandomShear(cfg.INPUT.SHEAR.ANGLE_H_RANGE, cfg.INPUT.SHEAR.ANGLE_V_RANGE))
 
         
         
