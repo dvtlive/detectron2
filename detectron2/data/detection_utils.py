@@ -587,8 +587,6 @@ def build_augmentation(cfg, is_train):
             augmentation.append(T.RandomBrightness(cfg.INPUT.BRIGHTNESS.RANGE[0], cfg.INPUT.BRIGHTNESS.RANGE[1]))
         if cfg.INPUT.SATURATION.ENABLED:
             augmentation.append(T.RandomSaturation(cfg.INPUT.SATURATION.RANGE[0], cfg.INPUT.SATURATION.RANGE[1]))
-        if cfg.INPUT.CUTOUT.ENABLED:
-            augmentation.append(T.RandomCutout(cfg.INPUT.CUTOUT.NUM_HOLE_RANGE, cfg.INPUT.CUTOUT.RADIUS_RANGE, cfg.INPUT.CUTOUT.COLOR_RANGE))
         if cfg.INPUT.EXTENT.ENABLED:
             augmentation.append(T.RandomExtent(scale_range=(1, 1), shift_range=cfg.INPUT.EXTENT.SHIFT_RANGE))
         if cfg.INPUT.CROP.ENABLED:
