@@ -579,6 +579,8 @@ def build_augmentation(cfg, is_train):
     augmentation = [T.ResizeShortestEdge(min_size, max_size, sample_style)]
     if is_train:  
         
+        augmentation.append(T.RandomFlip())
+        
         if cfg.INPUT.CONTRAST.ENABLED:
             augmentation.append(T.RandomContrast(cfg.INPUT.CONTRAST.RANGE[0], cfg.INPUT.CONTRAST.RANGE[1]))
         if cfg.INPUT.BRIGHTNESS.ENABLED:
@@ -595,6 +597,7 @@ def build_augmentation(cfg, is_train):
             augmentation.append(T.RandomRotation(cfg.INPUT.ROTATE.ANGLE, expand=False))
         if cfg.INPUT.SHEAR.ENABLED:
             augmentation.append(RandomShear(cfg.INPUT.SHEAR.ANGLE_H_RANGE, cfg.INPUT.SHEAR.ANGLE_V_RANGE))
+
         
         
     return augmentation
