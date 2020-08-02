@@ -580,25 +580,9 @@ def build_augmentation(cfg, is_train):
     if is_train:  
         
         augmentation.append(T.RandomFlip())
-        
-        if cfg.INPUT.CONTRAST.ENABLED:
-            augmentation.append(T.RandomContrast(cfg.INPUT.CONTRAST.RANGE[0], cfg.INPUT.CONTRAST.RANGE[1]))
-        if cfg.INPUT.BRIGHTNESS.ENABLED:
-            augmentation.append(T.RandomBrightness(cfg.INPUT.BRIGHTNESS.RANGE[0], cfg.INPUT.BRIGHTNESS.RANGE[1]))
-        if cfg.INPUT.SATURATION.ENABLED:
-            augmentation.append(T.RandomSaturation(cfg.INPUT.SATURATION.RANGE[0], cfg.INPUT.SATURATION.RANGE[1]))
-        if cfg.INPUT.EXTENT.ENABLED:
-            augmentation.append(T.RandomExtent(scale_range=(1, 1), shift_range=cfg.INPUT.EXTENT.SHIFT_RANGE))
-        if cfg.INPUT.CROP.ENABLED:
-            augmentation.append(T.RandomCrop(cfg.INPUT.CROP.TYPE, cfg.INPUT.CROP.SIZE))
-        if cfg.INPUT.ROTATE.ENABLED:
-            augmentation.append(T.RandomRotation(cfg.INPUT.ROTATE.ANGLE, expand=False))    
-        if cfg.INPUT.LIGHTING.ENABLED:
-            augmentation.append(T.RandomLighting(cfg.INPUT.LIGHTING.SCALE))
-            
-
-
-        
+        augmentation.append(T.RandomContrast(0.75, 1.5))
+        augmentation.append(T.RandomBrightness(0.9, 1.1))
+        augmentation.append(T.RandomSaturation(0.8, 1.2)
         
     return augmentation
 
