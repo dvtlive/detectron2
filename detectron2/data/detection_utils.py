@@ -580,9 +580,9 @@ def build_augmentation(cfg, is_train):
     if is_train:  
         
         augmentation.append(T.RandomFlip())
-        augmentation.append(T.RandomContrast(0.25, 1.75))
-        augmentation.append(T.RandomBrightness(0.25, 1.75))
-        augmentation.append(T.RandomSaturation(0.25, 1.75))
+        augmentation.append(T.RandomContrast(0.1, 1.9))
+        augmentation.append(T.RandomBrightness(0.1, 1.9))
+        augmentation.append(T.RandomSaturation(0.1, 1.9))
         
     return augmentation
 
