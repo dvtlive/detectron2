@@ -583,7 +583,7 @@ def build_augmentation(cfg, is_train):
         augmentation.append(T.RandomContrast(0.75,1.25))
         augmentation.append(T.RandomBrightness(0.75,1.25))
         augmentation.append(T.RandomSaturation(0.75,1.25))
-        augmentation.append(T.RandomRotation(10,10))
+        #augmentation.append(T.RandomRotation(10,10))
 
         
     return augmentation
